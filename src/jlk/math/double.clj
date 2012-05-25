@@ -48,17 +48,25 @@ values from http://en.wikipedia.org/wiki/Relative_permittivity"
 (defmethod εr :vacuum [_] 1.0)
 (defmethod εr :air [_] 1.00058986)
 
+(defmacro ^:private defmalias
+  "Strengthen a one-argument function-like thing to an alias bound to
+a real function."
+  [name mac]
+  `(defn ~name
+     ~(str "As with " mac ".")
+     {:arglists '([~'x]) ::defmalias 1}
+     [x#] (~mac x#)))
 
 ;; basic
 
-(defn abs [x] (Math/abs x))
+(defmalias abs Math/abs)
 
 (defn square [x] (* x x))
 (def sq square)
-(defn square-root [x] (Math/sqrt x))
+(defmalias square-root Math/sqrt)
 (def sqrt square-root)
 (defn cube [x] (* x x x))
-(defn cube-root [x] (Math/cbrt x))
+(defmalias cube-root Math/cbrt)
 
 (defn pow [x y] (Math/pow x y))
 (defn nroot [x y] (pow y (/ 1 x)))
@@ -82,42 +90,42 @@ values from http://en.wikipedia.org/wiki/Relative_permittivity"
 
 ;; logarithms
 
-(defn ln [x] (Math/log x))
+(defmalias ln Math/log)
 
-(defn log [x] (Math/log10 x))
+(defmalias log Math/log10)
 
 ;; angles
 
-(defn degrees-to-radians [x] (Math/toRadians x))
+(defmalias degrees-to-radians Math/toRadians)
 (def deg2rad degrees-to-radians)
 (def d2r degrees-to-radians)
 (def to-radians degrees-to-radians)
-(defn radians-to-degrees [x] (Math/toDegrees x))
+(defmalias radians-to-degrees Math/toDegrees)
 (def rad2deg radians-to-degrees)
 (def r2d radians-to-degrees)
 (def to-degrees radians-to-degrees)
 
 ;; trig
 
-(defn sin [x] (Math/sin x))
-(defn cos [x] (Math/cos x))
-(defn tan [x] (Math/tan x))
-(defn asin [x] (Math/asin x))
-(defn acos [x] (Math/acos x))
-(defn atan [x] (Math/atan x))
+(defmalias sin Math/sin)
+(defmalias cos Math/cos)
+(defmalias tan Math/tan)
+(defmalias asin Math/asin)
+(defmalias acos Math/acos)
+(defmalias atan Math/atan)
 (defn atan2 [x y]
   "returns theta in the conversion from (x,y) to (r,theta)"
   (Math/atan2 y x)) ;; check this
 
-(defn sinh [x] (Math/sinh x))
-(defn cosh [x] (Math/cosh x))
-(defn tanh [x] (Math/tanh x))
+(defmalias sinh Math/sinh)
+(defmalias cosh Math/cosh)
+(defmalias tanh Math/tanh)
 
 ;; misc
 
-(defn round [x] (Math/round x))
-(defn floor [x] (Math/floor x))
-(defn ceiling [x] (Math/ceil x))
+(defmalias round Math/round)
+(defmalias floor Math/floor)
+(defmalias ceiling Math/ceil)
 
 (defn random [] "0.0 <= x < 1.0" (Math/random))
 
