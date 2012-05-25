@@ -24,7 +24,7 @@
   "relative permeability
 
 values from http://en.wikipedia.org/wiki/Permeability_(electromagnetism)"
-  (fn [x] x)) ;; 
+  identity) ;; 
 (def mu_r μr)
 (defmethod μr :vacuum [_] 1.0)
 (defmethod μr :air [_] 1.00000037)
@@ -42,7 +42,7 @@ values from http://en.wikipedia.org/wiki/Permeability_(electromagnetism)"
   "relative permittivity
 
 values from http://en.wikipedia.org/wiki/Relative_permittivity"
-  (fn [x] x))
+  identity)
 (def e_r εr)
 
 (defmethod εr :vacuum [_] 1.0)
