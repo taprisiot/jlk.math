@@ -2,6 +2,8 @@
 
 ;; to access greek letters
 ;; C-x 8 RET GREEK SMALL LETTER PI RET
+;; or C-u C-\ TeX RET, after which
+;; \pi ⇒ π, \mu ⇒ μ, \epsilon ⇒ ε, &c. (C-h I RET for more)
 
 ;;
 ;; arithmetic on doubles
