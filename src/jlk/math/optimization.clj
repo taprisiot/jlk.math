@@ -9,8 +9,8 @@
 (defn univariate-function
   "f is a function of a single variable (double) returning a double"
   [f]
-  (proxy [UnivariateFunction] []
-    (value [x] (f x))))
+  (reify UnivariateFunction
+    (value [_ x] (f x))))
 
 (defn solve
   [f & {:keys [max-eval solver start min max rel abs]
@@ -47,8 +47,8 @@
 (defn multivariate-function
   "f is a function accepting a vector (doubles) and returning a double.  eg.  (fn [[x y z]] ...)"
   [f]
-  (proxy [MultivariateFunction] []
-    (value [x] (f x))))
+  (reify MultivariateFunction
+    (value [_ x] (f x))))
 
 (defn optimize
   "multivariate optimization
