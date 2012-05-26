@@ -55,7 +55,7 @@ a real function."
   `(defn ~name
      ~(str "As with " mac ".")
      {:arglists '([~'x]) ::defmalias 1}
-     [x#] (~mac x#)))
+     [^Double x#] (~mac x#)))
 
 ;; basic
 
