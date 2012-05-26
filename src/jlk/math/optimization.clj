@@ -1,5 +1,6 @@
 (ns jlk.math.optimization
-  (:use [jlk.utility.core :only [exception]])
+  (:use [jlk.utility.core :only [exception]]
+        [clojure.set :only (difference)])
   (:import [org.apache.commons.math3.analysis UnivariateFunction MultivariateFunction]
            [org.apache.commons.math3.analysis.solvers BisectionSolver BracketingNthOrderBrentSolver BrentSolver IllinoisSolver LaguerreSolver MullerSolver MullerSolver2 NewtonSolver PegasusSolver RegulaFalsiSolver RiddersSolver SecantSolver]
            [org.apache.commons.math3.optimization GoalType]
@@ -9,8 +10,8 @@
 (defn univariate-function
   "f is a function of a single variable (double) returning a double"
   [f]
-  (proxy [UnivariateFunction] []
-    (value [x] (f x))))
+  (reify UnivariateFunction
+    (value [_ x] (f x))))
 
 (defn solve
   [f & {:keys [max-eval solver start min max rel abs]
@@ -47,8 +48,8 @@
 (defn multivariate-function
   "f is a function accepting a vector (doubles) and returning a double.  eg.  (fn [[x y z]] ...)"
   [f]
-  (proxy [MultivariateFunction] []
-    (value [x] (f x))))
+  (reify MultivariateFunction
+    (value [_ x] (f x))))
 
 (defn optimize
   "multivariate optimization
@@ -93,3 +94,19 @@ will return a map of {:value, :point}"
                        goal
                        start)]
       {:value (.getValue v) :point (vec (.getPoint v))})))
+
+(defn keywordize-args-1
+  "Lift a var holding a function of purely positional, symbolic
+arguments to a function of one argument, a map of all but one of those
+arguments so-keyed, and the final argument."
+  ([v]
+     {:pre [(var? v)
+            (-> v meta :arglists count (= 1))]}
+     (keywordize-args-1 v (->> v meta :arglists first (map keyword))))
+  ([f arg-keys]
+     (let [aks (set arg-keys)]
+       (fn [m]
+         (let [[free & err :as free?]
+               (seq (difference (set arg-keys) (keys m)))]
+           (assert (and (seq free?) (empty? err)))
+           (fn [x] (apply f (map (assoc m free x) arg-keys))))))))
