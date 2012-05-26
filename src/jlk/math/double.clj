@@ -1,4 +1,5 @@
-(ns jlk.math.double)
+(ns jlk.math.double
+  (:use [jlk.utility.core :only [exception]]))
 
 ;; to access greek letters
 ;; C-x 8 RET GREEK SMALL LETTER PI RET
@@ -139,3 +140,31 @@ a real function."
 (defn polar2rectangular [r theta]
   [(* r (cos theta)) (* r (sin theta))])
 (def p2r polar2rectangular)
+
+(def ^:dynamic *default-relative-error* (atom 1e-12))
+(def ^:dynamic *default-absolute-error* (atom nil))
+
+;;
+;; TODO: write some test cases for this
+;;
+(defn approximately-equal?
+  "approximately equal?
+
+use *default-relative-error* and *default-absolute-error* if none specified.  can set either to nil"
+  ([x y]
+     (approximately-equal? x y
+                           :rel-err @*default-relative-error*
+                           :abs-err @*default-absolute-error*))
+  ([x y & {:keys [rel-err abs-err]}]
+     (let [rv (if rel-err (abs (/ (- x y) x)))
+           av (if abs-err (abs (- x y)))]
+       (if (and rv av)
+         (and (< rv rel-err)
+              (< av abs-err))
+         (if rv
+           (< rv rel-err)
+         (if av
+           (< av abs-err)
+           (exception "must specify rel-err, abs-err or both")))))))
+
+(def ≅ approximately-equal?)
