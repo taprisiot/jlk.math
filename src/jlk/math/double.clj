@@ -69,9 +69,11 @@ a real function."
 (defn cube [x] (* x x x))
 (defmalias cube-root Math/cbrt)
 
-(defn pow [x y] (Math/pow x y))
-(defn nroot [x y] (pow y (/ 1 x)))
-(def nrt nroot)
+(defn power [x y] (Math/pow x y))
+(def pow power)
+(defn nth-root [x y] (pow y (/ 1 x)))
+(def nroot nth-root)
+(def nrt nth-root)
 
 (defn arithmetic-mean
   [& vals]
