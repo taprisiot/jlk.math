@@ -53,54 +53,12 @@
 ;; the above works, but i'm not sure how to generalise it....
 ;;
 
-
-
-
-
-
-
-
-
-
 ;;   (:use [jlk.repl.core]
 ;; ;;        [clojure.repl]
 ;;         )
 ;;   (:import [org.apache.commons.math.linear Array2DRowFieldMatrix BlockFieldMatrix SparseFieldMatrix Array2DRowRealMatrix]
 ;;            [org.apache.commons.math.complex ComplexField Complex ComplexFormat]
 ;;            [org.apache.commons.math.util BigRealField]))
-
-;; (defn deg2rad
-;;   [x]
-;;   (/ (* x Math/PI) 180.0))
-
-;; (defn rad2deg
-;;   [x]
-;;   (/ (* x 180.0) Math/PI))
-
-;; (defn real
-;;   [z]
-;;   (.getReal z))
-
-;; (defn imag
-;;   [z]
-;;   (.getImaginary z))
-
-;; (def ^:dynamic *complex-format* (ComplexFormat. "j"))
-
-;; (defn complex
-;;   [real imag]
-;;   (proxy [Complex] [real imag]
-;;     (toString [] (.format *complex-format* this))))
-
-;; (defn polar
-;;   "return complex number using radians"
-;;   [mag ang]
-;;   (complex (* mag (Math/cos ang)) (* mag (Math/sin ang))))
-
-;; (defn p
-;;   "return complex number using degrees"
-;;   [mag ang]
-;;   (polar mag (deg2rad ang)))
 
 ;; (defmulti -matrix (fn [impl type & args] [impl type]))
 ;; (defmethod -matrix [:array2drow :real]
