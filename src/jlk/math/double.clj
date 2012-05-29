@@ -14,6 +14,9 @@
 ;; constants
 ;; 
 
+(def small 1e-12)
+(def ε small)
+
 (def e Math/E)
 (def π Math/PI)
 (def pi π)
