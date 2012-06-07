@@ -4,5 +4,7 @@
   :license {:name "BSD"}
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [org.apache.commons/commons-math3 "3.0"]
-                 [jlk/utility "0.1-SNAPSHOT"]]
+                 [org.clojure/data.finger-tree "0.0.1"]
+                 [jlk/utility "0.1-SNAPSHOT"]
+                 [jlk/log "0.2-SNAPSHOT"]]
   :plugins [[lein-swank "1.4.0"]])
