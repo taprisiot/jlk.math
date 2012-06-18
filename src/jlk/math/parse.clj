@@ -22,15 +22,6 @@
                  (read-string s)))
        (re-seq #"-?[0-9]+(?:\.[0-9]+)?|:\S+|[+-\\*/()]|\S+" s))) ;; \S doesn't pick up '+'??
 
-
-
-(defn avg
-  "an example functino of n arguments"
-  [& args]
-  (if (> (count args) 0)
-    (/ (reduce + args) (count args))
-    0))
-
 (def ^:dynamic *ops*
   (atom {<LP> {:level 0}
          <RP> {:level 1}
