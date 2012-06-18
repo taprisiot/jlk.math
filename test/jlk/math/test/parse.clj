@@ -1,7 +1,12 @@
 (ns jlk.math.test.parse
   (:use [clojure.test]
-        [jlk.log.core :only [fatal error warn info debug trace enable-subsystem! set-level! set-logger!]])
+        [jlk.log.core :only [fatal error warn info debug trace enable-subsystem! disable-subsystem! set-level! set-logger!]]
+        [jlk.math.parse :only [<LP> <RP>]])
   (:require [jlk.math.parse :as parse]))
+
+;; configure logging
+;(enable-subsystem!)
+;(set-level! :debug)
 
 (defn rs [tokens rpnexpr sexpr eval result]
   {:ts tokens :rpnexpr rpnexpr :sexpr sexpr :eval? eval :result result})
@@ -37,7 +42,10 @@
    ["1 + 2 / 3" (rs '(1 + 2 / 3) '(1 2 3 / +) '(+ 1 (/ 2 3)) true 5/3)]
    ["1 / 2 + 3" (rs '(1 / 2 + 3) '(1 2 / 3 +) '(+ (/ 1 2) 3) true 7/2)]
    ;; parenthesis
-   ["(1 + 2) * 3" (rs '((symbol "(") 1 + 2 (symbol ")") * 3) '(1 2 + 3 *) '(* (+ 1 2) 3) true 9)]
+   ;; ["(1 + 2) * 3" (rs (list <LP> 1 '+ 2 <RP> '* 3) '(1 2 + 3 *) '(* (+ 1 2) 3) true 9)]
+   ;; ["(1 * 2) + 3" (rs (list <LP> 1 '* 2 <RP> '+ 3) '(1 2 * 3 +) '(+ (* 1 2) 3) true 5)]
+   ;; ["1 + (2 * 3)" (rs (list 1 '+ <LP> 2 '* 3 <RP>) '(1 2 3 * +) '(+ 1 (* 2 3)) true 7)]
+   ;; ["1 * (2 + 3)" (rs (list 1 '* <LP> 2 '+ 3 <RP>) '(1 2 3 + *) '(* 1 (+ 2 3)) true 6)]
    ]
   )
 
@@ -63,4 +71,41 @@
 ;; (deftest parse-rpn-input
 ;;   )
 
-;; (deftest rpn-to-sexpr)
+(defn sin
+  "a sample function of one argument - no additional definition necessary"
+  [x]
+  (Math/sin x))
+
+(defn hypot
+  "a sample function of two arguments - need to define {:args 2} in the *ops* table."
+  [x y]
+  (Math/sqrt (+ (* x x) (* y y))))
+
+(defn avg
+  "a sample function of n arguments - need to define {:args :stack} in the *ops* table"
+  [& args]
+  (if (> (count args) 0)
+    (/ (reduce + args) (count args))
+    0))
+
+(deftest rpn-to-sexp
+  ;; test some dodgy input
+  (doseq [expr ['(0 0)
+                '(0 0 0 +)]]
+    (debug "testing that %s throws an Exception" expr)
+    (is (thrown? Exception (parse/rpn-to-sexp expr))))
+
+  ;; test additional functions
+  (let [oo @parse/*ops*]
+    (swap! parse/*ops* assoc
+           'hypot {:args 2}
+           'avg {:args :stack})
+    (is (= (parse/rpn-to-sexp '(0 sin)) '(sin 0)))
+    (is (= (eval (parse/rpn-to-sexp '(0 sin))) 0.0))
+    
+    (is (= (parse/rpn-to-sexp '(1 1 hypot)) '(hypot 1 1)))
+    (is (= (eval (parse/rpn-to-sexp '(1 1 hypot))) (Math/sqrt 2)))
+
+    (is (= (parse/rpn-to-sexp '(1 2 3 4 5 5 avg)) '(avg 1 2 3 4 5)))
+    (is (= (eval (parse/rpn-to-sexp '(1 2 3 4 5 5 avg))) 3))
+    (reset! parse/*ops* oo)))
