@@ -29,8 +29,6 @@
          '- {:level 2 :args 2}
          '* {:level 3 :args 2}
          '/ {:level 3 :args 2}
-                                        ;   'hypot {:args 2}
-                                        ;   'avg {:args :stack}
          }))
 
 (defn op>=
@@ -85,8 +83,8 @@
       (if (symbol? v)
         (let [nargs (nargs v)
               [args stack] (if (= nargs :stack)
-                             (enforced-split-at (first stack) (rest stack) :msg "invalid expression")
-                             (enforced-split-at nargs stack :msg "invalid expression"))]
+                             (enforced-split-at (first stack) (rest stack) "invalid expression %s, \"%s\"->nargs=%s, stack=%s" rpnexpr v nargs stack)
+                             (enforced-split-at nargs stack "invalid expression %s, \"%s\"->nargs=%s, stack=%s" rpnexpr v nargs stack))]
           (recur expr (conj stack (conj (reverse args) v))))
         (recur expr (conj stack v))))))
 
