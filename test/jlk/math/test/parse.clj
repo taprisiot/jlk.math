@@ -114,7 +114,9 @@
   (let [oo @parse/*ops*]
     (swap! parse/*ops* assoc
            'hypot {:args 2}
-           'avg {:args :stack})
+           'avg {:args :stack}
+           ;; 'sin uses the default number of arguments, 1, and does not need to be explicitly defined
+           )
     (is (= (parse/rpn-to-sexp '(0 sin)) '(sin 0)))
     (is (= (eval (parse/rpn-to-sexp '(0 sin))) 0.0))
     
