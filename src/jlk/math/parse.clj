@@ -13,6 +13,7 @@
 
 (def <LP> (symbol "("))
 (def <RP> (symbol ")"))
+(def <CARET> (symbol "^"))
 
 ;; note that "sin(3)" will currently fail, but sin (3) is OK
 ;; this might be OK as I do not currently have a notation for functions, instead relying on binding *ops*
@@ -22,8 +23,9 @@
   (map (fn [s] (case s
                  "(" <LP>
                  ")" <RP>
+                 "^" <CARET>
                  (read-string s)))
-       (re-seq #"-?[0-9]+(?:\.[0-9]+)?|:\S+|[+-\\*/()]|\S+" s))) ;; \S doesn't pick up '+'??
+       (re-seq #"-?[0-9]+(?:\.[0-9]+)?|:\S+|[+-\\*/()^]|\S+" s))) ;; \S doesn't pick up '+'??
 
 (def ^:dynamic *max-level* 255)
 (def ^:dynamic *ops*
@@ -31,6 +33,8 @@
          '- {:level 2 :args 2}
          '* {:level 3 :args 2}
          '/ {:level 3 :args 2}
+         <CARET> {:level 99 :args 2 :substitute 'power}
+         'power {:level 4 :args 2}
          }))
 
 (defn op>=
@@ -41,6 +45,14 @@
 (defn nargs
   [op]
   (get-in @*ops* [op :args] 1))
+
+(defn substitute?
+  [op]
+  (get-in @*ops* [op :substitute] false))
+
+(defn substitute
+  [op]
+  (get-in @*ops* [op :substitute]))
 
 (defn shunt
   "take a sequence of tokens and turn into a sequence in rpn"
@@ -62,7 +74,7 @@
                                             (recur ss (rest kept) (into expr popped) (dec depth)))
         [(e :when [symbol?])] (let [[popped kept]
                                     (split-with #(op>= % token) opstack)]
-                                (recur ss (conj kept token) (into expr popped) depth))
+                                (recur ss (conj kept (if (substitute? token) (substitute token) token)) (into expr popped) depth))
         [_] (exception "token %s not matched" token)))))
 
 (defn parse-infix-to-rpn

@@ -1,7 +1,8 @@
 (ns jlk.math.test.parse
   (:use [clojure.test]
         [jlk.log.core :only [fatal error warn info debug trace enable-subsystem! disable-subsystem! set-level! set-logger!]]
-        [jlk.math.parse :only [<LP> <RP>]])
+        [jlk.math.parse :only [<LP> <RP> <CARET>]]
+        [jlk.math.double :only [power]])
   (:require [jlk.math.parse :as parse]))
 
 ;; configure logging
@@ -61,6 +62,19 @@
                                           '(- (+ (/ 1 2) (* 2 3)) (/ (/ 3 2) 2))
                                           true
                                           23/4)]
+   ;; exponentiation
+   ["1^1" (rs (list 1 <CARET> 1) '(1 1 power) '(power 1 1) true 1.0)]
+   ["1^2" (rs (list 1 <CARET> 2) '(1 2 power) '(power 1 2) true 1.0)]
+   ["2^1" (rs (list 2 <CARET> 1) '(2 1 power) '(power 2 1) true 2.0)]
+   ["2^2" (rs (list 2 <CARET> 2) '(2 2 power) '(power 2 2) true 4.0)]
+   ["1^2^3" (rs (list 1 <CARET> 2 <CARET> 3)
+                '(1 2 3 power power) '(power 1 (power 2 3)) true 1.0)]
+   ["3^2^1" (rs (list 3 <CARET> 2 <CARET> 1)
+                '(3 2 1 power power) '(power 3 (power 2 1)) true 9.0)]
+   ["2 * 3^2" (rs (list 2 '* 3 <CARET> 2)
+                  '(2 3 2 power *) '(* 2 (power 3 2)) true 18.0)]
+   ["3^(2 * 2)" (rs (list 3 <CARET> <LP> 2 '* 2 <RP>)
+                    '(3 2 2 * power) '(power 3 (* 2 2)) true 81.0)]
    ]
   )
 
