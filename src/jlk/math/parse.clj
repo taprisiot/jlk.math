@@ -23,10 +23,9 @@
                  (read-string s)))
        (re-seq #"-?[0-9]+(?:\.[0-9]+)?|:\S+|[+-\\*/()]|\S+" s))) ;; \S doesn't pick up '+'??
 
+(def ^:dynamic *max-level* 255)
 (def ^:dynamic *ops*
-  (atom {<LP> {:level 0}
-         <RP> {:level 1}
-         '+ {:level 2 :args 2}
+  (atom {'+ {:level 2 :args 2}
          '- {:level 2 :args 2}
          '* {:level 3 :args 2}
          '/ {:level 3 :args 2}
@@ -35,7 +34,7 @@
 (defn op>=
   [x y]
   (let [ops @*ops*]
-    (>= (get-in ops [x :level] 0) (get-in ops [y :level] 0)))) ;; default value prevents null pointer, but not sure to default to a low or high value
+    (>= (get-in ops [x :level] 0) (get-in ops [y :level] *max-level*)))) ;; default value prevents null pointer, but not sure to default to a low or high value.  update: should be high
 
 (defn nargs
   [op]
