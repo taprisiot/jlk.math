@@ -14,6 +14,8 @@
 (def <LP> (symbol "("))
 (def <RP> (symbol ")"))
 
+;; note that "sin(3)" will currently fail, but sin (3) is OK
+;; this might be OK as I do not currently have a notation for functions, instead relying on binding *ops*
 (defn tokenize
   "string"
   [^String s]
@@ -41,38 +43,14 @@
   (get-in @*ops* [op :args] 1))
 
 (defn shunt
-  [ss]
-  (loop [ss ss
-         opstack '()
-         expr []]
-    (debug "shunt-loop %s %s %s" (seq ss) (seq opstack) expr)
-    (if (empty? ss)
-      (concat expr opstack)
-      (let [tok (first ss)]
-        (if (number? tok)
-          (recur (rest ss) opstack (conj expr tok))
-          (if (keyword? tok)
-            (recur (rest ss) opstack (conj expr tok))
-           (if (and (symbol? tok)
-                    (= tok <RP>))
-             (let [[popped kept] (split-with #(not= % <LP>) opstack)]
-               (recur (rest ss) kept (into expr popped)))
-             (if (and (symbol? tok)
-                      (= tok <LP>))
-               (let [[popped kept] (split-with #(op>= % tok) (rest opstack))]
-                 (recur (rest ss) kept (into expr popped)))
-               (if (symbol? tok)
-                 (let [[popped kept] (split-with #(op>= % tok) opstack)]
-                   (recur (rest ss) (conj kept tok) (into expr popped)))
-                 (exception "could not parse"))))))))))
-
-(defn shunt2
+  "take a sequence of tokens and turn into a sequence in rpn"
+  ;; note this does not adequately handle bad input
   [ss]
   (loop [ss ss
          opstack '()
          expr []
          depth 0]
-    (debug "shunt2-loop %s %s %s %s" (seq ss) (seq opstack) expr depth)
+    (debug "shunt-loop %s %s %s %s" (seq ss) (seq opstack) expr depth)
     (let [[token & ss] ss]
       (match [token]
         [nil] (concat expr opstack)
@@ -89,7 +67,7 @@
 
 (defn parse-infix-to-rpn
   [s]
-  (shunt2 (tokenize s)))
+  (shunt (tokenize s)))
 
 (defn rpn-to-sexp
   "convert rpn notation to sexp.  when evaluating functions will remove n items from the stack as defined in *ops* or 1 (the most common case) otherwise.  can define operations as :args :stack in *ops* to get the number of arguments from the top of the stack"
